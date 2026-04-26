@@ -32,20 +32,16 @@ class Campaign extends Model
         return $this->belongsTo(User::class);
     }
 
-     /**
-      * getCTR
-      *
-      * @return float
-      */
-     public function getCTR(): float
+    /**
+     * getCTR
+     */
+    public function getCTR(): float
     {
         return $this->impressions > 0 ? ($this->clicks / $this->impressions) * 100 : 0;
     }
 
     /**
      * getCPC
-     *
-     * @return float
      */
     public function getCPC(): float
     {
@@ -54,8 +50,6 @@ class Campaign extends Model
 
     /**
      * getCPA
-     *
-     * @return float
      */
     public function getCPA(): float
     {
@@ -64,8 +58,6 @@ class Campaign extends Model
 
     /**
      * getROAS
-     *
-     * @return float
      */
     public function getROAS(): float
     {
@@ -74,8 +66,6 @@ class Campaign extends Model
 
     /**
      * getMetrics
-     *
-     * @return array
      */
     public function getMetrics(): array
     {

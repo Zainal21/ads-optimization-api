@@ -4,28 +4,23 @@ namespace App\Services;
 
 use App\Models\Analys;
 use App\Models\Campaign;
-use App\Services\AI\AnthropicService;
-use App\Services\AI\GeminiService;
-use App\Services\AI\GrokService;
+use App\Services\AI\OpenRouterService;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
 
 class CampaignAnalysisService
 {
     public function __construct(
-        private readonly AnthropicService $anthropicService,
-        private readonly GrokService $grokService,
-        private readonly GeminiService $geminiService,
+        private readonly OpenRouterService $openRouterService,
     ) {}
 
     /**
      * createAnalysisForUser
      *
-     * @param  mixed $userId
-     * @param  mixed $campaignIds
-     * @return Analys
+     * @param  mixed  $userId
+     * @param  mixed  $campaignIds
      */
-    public function createAnalysisForUser(int $userId, array $campaignIds, string $aiProvider = 'anthropic'): ?Analys
+    public function createAnalysisForUser(int $userId, array $campaignIds): ?Analys
     {
         $campaigns = Campaign::whereIn('id', $campaignIds)
             ->where('user_id', $userId)
@@ -38,11 +33,7 @@ class CampaignAnalysisService
         $campaignData = $this->buildCampaignData($campaigns);
         $prompt = $this->buildPrompt($campaignData);
 
-        $content = match ($aiProvider) {
-            'grok' => $this->grokService->sendMessage($prompt),
-            'gemini' => $this->geminiService->sendMessage($prompt),
-            default => $this->anthropicService->sendMessage($prompt),
-        };
+        $content = $this->openRouterService->sendMessage($prompt);
 
         $aiAnalysis = $this->parseAIResponse($content);
 
@@ -63,9 +54,8 @@ class CampaignAnalysisService
     /**
      * listAnalysesForUser
      *
-     * @param  mixed $userId
-     * @param  mixed $perPage
-     * @return LengthAwarePaginator
+     * @param  mixed  $userId
+     * @param  mixed  $perPage
      */
     public function listAnalysesForUser(int $userId, int $perPage = 20): LengthAwarePaginator
     {
@@ -77,9 +67,8 @@ class CampaignAnalysisService
     /**
      * getAnalysisForUserOrNull
      *
-     * @param  mixed $userId
-     * @param  mixed $analysisId
-     * @return Analys
+     * @param  mixed  $userId
+     * @param  mixed  $analysisId
      */
     public function getAnalysisForUserOrNull(int $userId, int $analysisId): ?Analys
     {
@@ -89,9 +78,8 @@ class CampaignAnalysisService
     /**
      * compareAnalysesForUser
      *
-     * @param  mixed $userId
-     * @param  mixed $analysisIds
-     * @return Collection
+     * @param  mixed  $userId
+     * @param  mixed  $analysisIds
      */
     public function compareAnalysesForUser(int $userId, array $analysisIds): Collection
     {
@@ -103,8 +91,7 @@ class CampaignAnalysisService
     /**
      * generateComparisonMetrics
      *
-     * @param  mixed $analyses
-     * @return Collection
+     * @param  mixed  $analyses
      */
     public function generateComparisonMetrics(Collection $analyses): Collection
     {
@@ -116,8 +103,7 @@ class CampaignAnalysisService
     /**
      * buildCampaignData
      *
-     * @param  mixed $campaigns
-     * @return array
+     * @param  mixed  $campaigns
      */
     private function buildCampaignData(Collection $campaigns): array
     {
@@ -140,8 +126,7 @@ class CampaignAnalysisService
     /**
      * aggregateMetrics
      *
-     * @param  mixed $campaigns
-     * @return array
+     * @param  mixed  $campaigns
      */
     private function aggregateMetrics(Collection $campaigns): array
     {
@@ -160,8 +145,7 @@ class CampaignAnalysisService
     /**
      * buildPrompt
      *
-     * @param  mixed $campaignData
-     * @return string
+     * @param  mixed  $campaignData
      */
     private function buildPrompt(array $campaignData): string
     {
@@ -196,8 +180,7 @@ class CampaignAnalysisService
     /**
      * parseAIResponse
      *
-     * @param  mixed $response
-     * @return array
+     * @param  mixed  $response
      */
     private function parseAIResponse(string $response): array
     {
@@ -212,8 +195,6 @@ class CampaignAnalysisService
 
     /**
      * defaultResponse
-     *
-     * @return array
      */
     private function defaultResponse(): array
     {

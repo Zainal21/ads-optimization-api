@@ -486,7 +486,7 @@
                 ]
             }
         },
-        "/api/analyses/{analysis}": {
+        "/api/analyses/{id}": {
             "get": {
                 "tags": [
                     "Analyses"
@@ -495,7 +495,7 @@
                 "operationId": "analysesShow",
                 "parameters": [
                     {
-                        "name": "analysis",
+                        "name": "id",
                         "in": "path",
                         "required": true,
                         "schema": {
@@ -629,7 +629,7 @@
                 ]
             }
         },
-        "/api/analyses/{analysis}/export-pdf": {
+        "/api/analyses/{id}/export-pdf": {
             "get": {
                 "tags": [
                     "Analyses"
@@ -638,7 +638,7 @@
                 "operationId": "analysesExportPdf",
                 "parameters": [
                     {
-                        "name": "analysis",
+                        "name": "id",
                         "in": "path",
                         "required": true,
                         "schema": {
