@@ -18,9 +18,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user', [AuthController::class, 'user']);
 
     // Campaign routes
-    Route::apiResource('campaigns', CampaignManagementController::class);
     Route::post('/campaigns/bulk-upload', [CampaignManagementController::class, 'bulkUpload']);
-    Route::get('/campaigns/summary/{id}', [CampaignManagementController::class, 'summary']);
+    Route::get('/campaigns/bulk-upload/template', [CampaignManagementController::class, 'bulkUploadTemplate']);
+    Route::get('/campaigns/summary/{campaign}', [CampaignManagementController::class, 'summary']);
+    Route::apiResource('campaigns', CampaignManagementController::class);
 
     // Analysis routes
     Route::post('/analyze', [CampaignAnalysisController::class, 'analyze']);

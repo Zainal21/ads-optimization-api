@@ -278,6 +278,66 @@ class CampaignManagementController extends Controller
         return JsonResponseHelper::success('Campaign deleted successfully');
     }
 
+    #[OA\Get(
+        path: '/api/campaigns/bulk-upload/template',
+        operationId: 'campaignsBulkUploadTemplate',
+        tags: ['Campaigns'],
+        summary: 'Download CSV template for bulk upload',
+        security: [['bearerAuth' => []]],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'CSV file',
+                content: new OA\MediaType(
+                    mediaType: 'text/csv',
+                    schema: new OA\Schema(type: 'string', format: 'binary')
+                )
+            ),
+            new OA\Response(
+                response: 401,
+                description: 'Unauthenticated',
+                content: new OA\JsonContent(ref: '#/components/schemas/UnauthorizedResponse')
+            ),
+        ]
+    )]
+    public function bulkUploadTemplate(Request $request)
+    {
+        $filename = 'campaigns-bulk-upload-template.csv';
+
+        return response()->streamDownload(function () {
+            $output = fopen('php://output', 'w');
+
+            fputcsv($output, [
+                'name',
+                'platform',
+                'impressions',
+                'clicks',
+                'conversions',
+                'spend',
+                'revenue',
+                'start_date',
+                'end_date',
+            ]);
+
+            fputcsv($output, [
+                'Spring Sale',
+                'Google',
+                10000,
+                450,
+                25,
+                1250.50,
+                4600.00,
+                '2026-01-01',
+                '2026-01-31',
+            ]);
+
+            fclose($output);
+        }, $filename, [
+            'Content-Type' => 'text/csv',
+            'Access-Control-Expose-Headers' => 'Content-Disposition',
+        ]);
+    }
+
     #[OA\Post(
         path: '/api/campaigns/bulk-upload',
         operationId: 'campaignsBulkUpload',

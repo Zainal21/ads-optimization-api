@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Services\CampaignAnalysisService;
+use Dompdf\Dompdf;
+use Dompdf\Options;
 use Illuminate\Http\Request;
 use OpenApi\Attributes as OA;
 
@@ -248,13 +250,10 @@ class CampaignAnalysisController extends Controller
         responses: [
             new OA\Response(
                 response: 200,
-                description: 'PDF export endpoint',
-                content: new OA\JsonContent(
-                    type: 'object',
-                    properties: [
-                        new OA\Property(property: 'message', type: 'string', example: 'PDF export endpoint'),
-                        new OA\Property(property: 'analysisId', type: 'integer', example: 1),
-                    ]
+                description: 'PDF file',
+                content: new OA\MediaType(
+                    mediaType: 'application/pdf',
+                    schema: new OA\Schema(type: 'string', format: 'binary')
                 )
             ),
             new OA\Response(
@@ -283,9 +282,30 @@ class CampaignAnalysisController extends Controller
             ], 404);
         }
 
-        return response()->json([
-            'message' => 'PDF export endpoint',
-            'analysisId' => $analysis->id,
+        $campaigns = $analysis->campaigns();
+
+        $html = view('pdf.analysis-report', [
+            'analysis' => $analysis,
+            'campaigns' => $campaigns,
+        ])->render();
+
+        $options = new Options;
+        $options->set('defaultFont', 'DejaVu Sans');
+        $options->setIsRemoteEnabled(false);
+
+        $dompdf = new Dompdf($options);
+        $dompdf->loadHtml($html, 'UTF-8');
+        $dompdf->setPaper('A4');
+        $dompdf->render();
+
+        $pdfBinary = $dompdf->output();
+
+        $filename = 'analysis-'.$analysis->id.'.pdf';
+
+        return response($pdfBinary, 200, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'attachment; filename="'.$filename.'"',
+            'Access-Control-Expose-Headers' => 'Content-Disposition',
         ]);
     }
 }

@@ -1,0 +1,11 @@
+services:
+  api:
+    build:
+      context: .
+    ports:
+      - "8080:80"
+    env_file:
+      - .env
+    volumes:
+      - ./storage:/app/storage
+      - ./database:/app/database
