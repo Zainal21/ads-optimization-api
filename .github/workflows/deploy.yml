@@ -44,7 +44,7 @@ jobs:
           script_stop: true
           script: |
             set -euo pipefail
-            cd "${{ secrets.DEPLOY_PATH }}"
+            cd "/home/zain234/ads-ai-api"
             git fetch --all
             git reset --hard "origin/main"
             docker compose pull --ignore-pull-failures
