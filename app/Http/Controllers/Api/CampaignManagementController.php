@@ -272,7 +272,6 @@ class CampaignManagementController extends Controller
     )]
     public function destroy(Request $request, Campaign $campaign)
     {
-        $this->authorize('delete', $campaign);
         $campaign->delete();
 
         return JsonResponseHelper::success('Campaign deleted successfully');
